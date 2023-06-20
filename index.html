@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sierpiński Triangle</title>
+</head>
+<body style="background-color: #000">
+    <div style="width:100%;text-align: center;margin-top:20px;">
+        <canvas id="myCanvas" width="660" height="660" style="margin:auto;"></canvas>
+    </div>
+
+    <script>
+        const PIXEL_SIZE = 2;
+        const FRAME_SIZE = 660;
+
+        // Sierpinski Triangle
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext("2d");
+
+        function drawPoint(point) {
+            ctx.fillRect(point.x, point.y, PIXEL_SIZE, PIXEL_SIZE);
+        }
+
+        function isPointInsideTriangle(s, a,b,c) {
+            const as_x = s.x - a.x;
+            const as_y = s.y - a.y;
+            const s_ab = (b.x - a.x) * as_y - (b.y - a.y) * as_x > 0;
+
+            if ((c.x - a.x) * as_y - (c.y - a.y) * as_x > 0 == s_ab)
+                return false;
+    
+            if ((c.x - b.x) * (s.y - b.y) - (c.y - b.y)*(s.x - b.x) > 0 != s_ab) 
+                return false;
+            
+            return true;
+        }
+
+        function randomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1) + min)
+        }
+
+        function randomColor() {
+            return "#" + Math.floor(Math.random()*16777215).toString(16)
+        }
+        
+
+        const topX = (FRAME_SIZE / 2 ) - PIXEL_SIZE
+        const topY = 10
+
+        const originalPoints = [
+            {
+                x: topX,
+                y: topY
+            },
+            {
+                x: topX + 320,
+                y: topY + 640
+            },
+            {
+                x: topX - 320,
+                y: topY + 640
+            }
+        ]
+
+        originalPoints.forEach(point => drawPoint(point))
+
+        function generateRandomPoint() {
+            let point = {}
+
+            do {
+                point = {
+                    x: randomNumber(originalPoints[1].x, originalPoints[2].x),
+                    y: randomNumber(originalPoints[0].y, originalPoints[1].y)
+                }
+            } while(!isPointInsideTriangle(point, originalPoints[0], originalPoints[1], originalPoints[2]));
+
+            return point;
+        }
+        
+        ctx.fillStyle = "#ff00ff";
+
+        // let lastPoint = generateRandomPoint();
+        let lastPoint = {x:330,y:330}
+        drawPoint(lastPoint)
+
+        function loop() {
+            const randomOriginalPoint = originalPoints[randomNumber(0, 2)]
+
+            const halfway = {
+                x: (lastPoint.x + randomOriginalPoint.x) / 2,
+                y: (lastPoint.y + randomOriginalPoint.y) / 2,
+            }
+
+            ctx.fillStyle = randomColor();
+            drawPoint(halfway)
+            
+            lastPoint = halfway;
+            window.requestAnimationFrame(loop)
+        }
+        
+        window.requestAnimationFrame(loop)
+    </script>
+</body>
+</html>
